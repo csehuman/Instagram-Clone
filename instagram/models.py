@@ -14,6 +14,9 @@ class Post(models.Model):
     def __str__(self):
         return self.caption
 
+    def get_absolute_url(self):
+        return reverse("instagram:post_detail", kwargs={'pk': self.pk})
+
     def extract_tag_list(self):
         tag_name_list = re.findall(r"#([a-zA-z\dㄱ-힣]+)", self.caption)
         tag_list = []
@@ -22,8 +25,6 @@ class Post(models.Model):
             tag_list.append(tag)
         return tag_list
 
-    # def get_absolute_url(self):
-    #     return reverse("", kwargs={'pk': self.pk})
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
