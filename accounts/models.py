@@ -18,6 +18,9 @@ class User(AbstractUser):
     gender = models.CharField(max_length=1, blank=True, choices=GenderChoices.choices)
     avatar = models.ImageField(blank=True, upload_to="accounts/avatar/%Y/%M/%d", help_text="48x48 크기의 png/jpg 파일 업로드 해주세요.")
 
+    follower_set = models.ManyToManyField("self", blank=True)
+    following_set = models.ManyToManyField("self", blank=True)
+
     @property
     def name(self):
         return f"{self.first_name} {self.last_name}"
