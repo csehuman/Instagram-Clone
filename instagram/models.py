@@ -4,12 +4,22 @@ from django.db import models
 from django.urls import reverse
 
 
-class Post(models.Model):
-    author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+class BaseModel(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        abstract = True
+
+
+class Post(BaseModel):
+    author = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='my_post_set', on_delete=models.CASCADE)
     photo = models.ImageField(upload_to='instagram/post/%Y/%m/%d')
     caption = models.CharField(max_length=500)
     tag_set = models.ManyToManyField('Tag', blank=True)
     location = models.CharField(max_length=100)
+
+    like_user_set = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name='like_post_set', blank=True)
 
     def __str__(self):
         return self.caption
@@ -25,9 +35,20 @@ class Post(models.Model):
             tag_list.append(tag)
         return tag_list
 
+    def is_like_user(self, user):
+        # return user in self.like_user_set
+        return self.like_user_set.filter(pk=user.pk).exists()
+
+    class Meta:
+        ordering = ['-id']
+
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
 
     def __str__(self):
         return self.name
+
+# class LikeUser(models.Model):
+#     post = models.ForeignKey(Post, on_delete=models.CASCADE)
+#     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
